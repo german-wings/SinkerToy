@@ -20,7 +20,7 @@ def copy_master(sink_from,sink_to , status_variable , master_kill_switch):
     for root , directory , files in os.walk(sink_from):
         for file in files:
             if(master_kill_switch == True):
-                print('Kill Switch')
+                #print('Kill Switch')
                 return
             target_remote_file_path = os.path.join(root , file)
             stripped_remote_path = target_remote_file_path.split(sink_from+"\\")[1]
@@ -33,7 +33,7 @@ def copy_master(sink_from,sink_to , status_variable , master_kill_switch):
                 status_variable.set(f"Copying...{os.path.basename(target_remote_file_path)} to {os.path.dirname(possible_local_path)}")
             elif(os.path.exists(possible_local_path)):
                 #compare two files
-                print(f"Comparing .. {os.path.basename(possible_local_path)} Remote {os.path.basename(target_remote_file_path)}")
+                #print(f"Comparing .. {os.path.basename(possible_local_path)} Remote {os.path.basename(target_remote_file_path)}")
                 filecmp.clear_cache()
                 if(filecmp.cmp(possible_local_path , target_remote_file_path)==False):
                     status_variable.set("Downloading again...."+os.path.basename(possible_local_path))
@@ -89,20 +89,21 @@ class Application(tk.Tk):
         self.runner_thread = None
 
         if(os.path.exists(self.json_db_location)):
-            self.json_connection = open(self.json_db_location,'r')
-            json_db = json.load(self.json_connection)
             try:
+                self.json_connection = open(self.json_db_location,'r')
+                json_db = json.load(self.json_connection)
                 if(not os.path.exists(json_db['sink_from']) or os.path.exists(json_db['sink_to'])):
-                    print('valid locations detected')
+                    #print('valid locations detected')
                     self.sink_from = json_db['sink_from']
                     self.sink_to = json_db['sink_to']
                     self.run_infinitely()
             except Exception as e:
-                print(e)
+                self.status_variable.set("Garbage Sinker File...")
                 pass
 
         else:
-            print('Database Missing')
+            #print('Database Missing')
+            pass
 
     def select_sink_from(self):
         self.source_directory = tk.filedialog.askdirectory()
@@ -126,7 +127,7 @@ class Application(tk.Tk):
         self.run_main_loop()
 
     def run_thread(self):
-        print('Thread Started')
+        #print('Thread Started')
         while(self.master_kill_switch == False):
             delete_master(sink_from=self.sink_from , sink_to=self.sink_to)
             copy_master(sink_from=self.sink_from , sink_to=self.sink_to , status_variable=self.status_variable , master_kill_switch=self.master_kill_switch)
@@ -138,9 +139,8 @@ class Application(tk.Tk):
         self.runner_thread.start()
 
     def kill_thread(self):
-        print('Killing thread now')
+        #print('Killing thread now')
         self.master_kill_switch = True
-        self.runner_thread.join()
     
     def run_main_loop(self):
         pass
@@ -151,7 +151,7 @@ window = app
 
 def quit_window(icon, item):
     icon.stop()
-    print('Quit Window')
+    #print('Quit Window')
     window.kill_thread()
     window.destroy()
     sys.exit()
